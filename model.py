@@ -109,12 +109,12 @@ class DocREModel(nn.Module):
                     for mid, (start, end) in enumerate(e): # for every mention
                         if start + offset < c:
                             # In case the entity mention is truncated due to limited max seq length.
-                            e_emb.append(sequence_output[i, start + offset]) #加入提及嵌入
-                            e_att.append(attention[i, :, start + offset]) #加入所有头的实体注意力 是二维的（head,doc_len）
+                            e_emb.append(sequence_output[i, start + offset]) 
+                            e_att.append(attention[i, :, start + offset]) 
 
                     if len(e_emb) > 0:
-                        e_emb = torch.logsumexp(torch.stack(e_emb, dim=0), dim=0) #取所有提及的logsumexp 生成实体嵌入
-                        e_att = torch.stack(e_att, dim=0).mean(0) #最后生成二维的注意力 平均所有提及的 (head,doc_len)
+                        e_emb = torch.logsumexp(torch.stack(e_emb, dim=0), dim=0) 
+                        e_att = torch.stack(e_att, dim=0).mean(0)
                     else:
                         e_emb = torch.zeros(self.config.hidden_size).to(sequence_output)
                         e_att = torch.zeros(h, c).to(attention)
@@ -127,8 +127,8 @@ class DocREModel(nn.Module):
                         e_emb = torch.zeros(self.config.hidden_size).to(sequence_output)
                         e_att = torch.zeros(h, c).to(attention)
 
-                entity_embs.append(e_emb) #加入每个实体嵌入
-                entity_atts.append(e_att) #加入实体的注意力
+                entity_embs.append(e_emb) 
+                entity_atts.append(e_att) 
                 
             entity_embs = torch.stack(entity_embs, dim=0)  # [n_e, d]
             entity_atts = torch.stack(entity_atts, dim=0)  # [n_e, h, seq_len]
@@ -147,7 +147,7 @@ class DocREModel(nn.Module):
             ht_atts.append(ht_att) 
             
             # obtain local context embeddings.
-            rs = contract("ld,rl->rd", sequence_output[i], ht_att) #获取实体对对应的上下文嵌入
+            rs = contract("ld,rl->rd", sequence_output[i], ht_att) 
 
             hss.append(hs)
             tss.append(ts)
@@ -202,7 +202,7 @@ class DocREModel(nn.Module):
         bl = (b1.unsqueeze(3) * b2.unsqueeze(2)).view(-1, self.emb_size * self.block_size)
         hts = self.bilinear2(bl)
         hts = self.graph_hts(hts,hts_graph,batch_rel)
-        #加入实体对嵌入
+
         hs = torch.tanh(self.head_extractor2(torch.cat([hs, rs, hts], dim=-1)))
         ts = torch.tanh(self.tail_extractor2(torch.cat([ts, rs, hts], dim=-1)))
          # split into several groups.
