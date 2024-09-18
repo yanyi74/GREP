@@ -180,7 +180,6 @@ def to_official(preds: list, features: list, evi_preds: list = [], scores: list 
     h_idx, t_idx, title, sents = [], [], [], []
 
     for f in features:
-        #这个说明那个entity_map是反应伪文档中实体对对应的真实索引
         if "entity_map" in f:
             hts = [[f["entity_map"][ht[0]], f["entity_map"][ht[1]]] for ht in f["hts"]]
         else:
@@ -196,8 +195,8 @@ def to_official(preds: list, features: list, evi_preds: list = [], scores: list 
 
     for i in tqdm(range(preds.shape[0]), desc="preds"): # for each entity pair
         if scores != []:
-            score = extract_relative_score(scores[i], topks[i]) #如果有na的标签就减去na的，如果没有就减去最后一个
-            pred = topks[i] #预测topk的索引位置
+            score = extract_relative_score(scores[i], topks[i]) 
+            pred = topks[i] 
         else:
             pred = preds[i]
             pred = np.nonzero(pred)[0].tolist()
@@ -208,13 +207,13 @@ def to_official(preds: list, features: list, evi_preds: list = [], scores: list 
                     'h_idx': h_idx[i],
                     't_idx': t_idx[i],
                     'r': id2rel[p],
-                } #把三元组记录到字典中
+                } 
             if evi_preds != []:
-                curr_evi = evi_preds[i] #提前这个实体对的证据预测结果
-                evis = np.nonzero(curr_evi)[0].tolist()  #找到非零的索引
-                curr_result["evidence"] = [evi for evi in evis if evi < sents[i]] #把证据转化为当前列表
+                curr_evi = evi_preds[i] 
+                evis = np.nonzero(curr_evi)[0].tolist()  
+                curr_result["evidence"] = [evi for evi in evis if evi < sents[i]]
             if scores != []:
-                curr_result["score"] = score[np.where(topks[i] == p)].item() #记录topk的分数
+                curr_result["score"] = score[np.where(topks[i] == p)].item() 
             if p != 0 and p in np.nonzero(preds[i])[0].tolist():
                 official_res.append(curr_result)
             res.append(curr_result)
