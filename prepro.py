@@ -137,7 +137,7 @@ def get_pseudo_features(raw_feature: dict, pred_rels: list, entities: list, sent
                     'sent_pos': new_sent_pos,
                     'sent_labels': None,
                     'title': raw_feature['title'],
-                    'entity_map': ent_new2old, #找到原来的实体id
+                    'entity_map': ent_new2old, 
                     'hts_graph': hts_graph
                     }
         pseudo_features.append(pseudo_feature)
@@ -259,7 +259,6 @@ def read_docred(file_in,
                 relation[mention["relation"]] = 1
                 for i in mention["evidence"]:
                     sent_evi[i] += 1
-                #记录存在的关系
                 # doc_rel[mention["relation"]] += 1
                 doc_rel[mention["relation"]] = 1
             relations.append(relation)
