@@ -265,17 +265,17 @@ class DocREModel(nn.Module):
         doc_logits = self.classifier(doc_cls)
         doc_prob = torch.sigmoid(doc_logits)
         logits = doc_prob.repeat_interleave(torch.tensor(batch_rel,dtype=torch.int32).to(doc_logits.device), dim=0) + logits
-        output["rel_pred"] = self.loss_fnt.get_label(logits, num_labels=self.num_labels) #得到关系的标签 1 0
+        output["rel_pred"] = self.loss_fnt.get_label(logits, num_labels=self.num_labels) 
 
         if doc_rel != None:
             output["doc_prob"] = doc_prob.to(sequence_output)
         if sent_labels != None: # human-annotated evidence available
 
-            s_attn = self.forward_evi(doc_attn, sent_pos, batch_rel, offset) #这个是得到每个句子的logits
-            output["evi_pred"] = F.pad(s_attn > self.evi_thresh, (0, self.max_sent_num - s_attn.shape[-1])) #得到证据预测标签 0 1
+            s_attn = self.forward_evi(doc_attn, sent_pos, batch_rel, offset) 
+            output["evi_pred"] = F.pad(s_attn > self.evi_thresh, (0, self.max_sent_num - s_attn.shape[-1])) 
 
         if tag in ["test", "dev"]: # testing
-            scores_topk = self.loss_fnt.get_score(logits, self.num_labels) #找topk的logits和索引
+            scores_topk = self.loss_fnt.get_score(logits, self.num_labels) 
             output["scores"] = scores_topk[0]
             output["topks"] = scores_topk[1]
         
