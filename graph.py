@@ -53,7 +53,6 @@ class MultiHeadDotProductAttention(nn.Module):
         N_bt, N_nodes, _ = h.shape
         adj_mat = adj_mat.unsqueeze(1)
         scores = torch.zeros(N_bt, self.h, N_nodes, N_nodes).to(h.device)
-        #对每一种类型的边都算单独的注意力。
         for edge in range(len(self.edges)):
             q, k = [l(x).view(N_bt, -1, self.h, self.d_k).transpose(1, 2) for l, x in
                     zip(self.linear_layers[edge], (h, h))]
@@ -71,14 +70,12 @@ class AttentionGCNLayer(nn.Module):
         self.graph_attention = MultiHeadDotProductAttention(edges, input_size, input_size, self.nhead, attn_drop)
         self.gcn_layers = nn.Sequential(
             *[GraphConvolutionLayer(input_size, input_size, graph_drop) for _ in range(iters)])
-        #这个就是为了算那个多头注意力嵌入
         self.blocks = nn.ModuleList([self.gcn_layers for _ in range(self.nhead)])
 
         self.aggregate_W = nn.Linear(input_size * nhead, input_size)
 
     def forward(self, nodes_embed, node_adj):
         output = []
-        #计算节点之间的图注意力，
         graph_attention = self.graph_attention(nodes_embed, node_adj)
         for cnt in range(0, self.nhead):
             hi, _ = self.blocks[cnt]((nodes_embed, graph_attention[cnt]))
