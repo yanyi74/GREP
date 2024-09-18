@@ -41,13 +41,10 @@ def add_entity_markers(sample, tokenizer, entity_start, entity_end):
 
 def save_graphs(graphs, base_filename):
     for idx, graph in enumerate(graphs):
-        # 将图的邻接矩阵转换为 DataFrame
         df = pd.DataFrame(graph)
-        
-        # 构造文件名
+    
         filename = f"{base_filename}/graph_{idx + 1}.csv"
         
-        # 将 DataFrame 保存到 CSV 文件
         df.to_csv(filename, index=False, header=False)
         
         print(f"Saved {filename}")
@@ -69,30 +66,29 @@ def get_pseudo_features(raw_feature: dict, pred_rels: list, entities: list, sent
             continue
 
         # check if head/tail entity presents in evidence. if not, append sentence containing the first mention of head/tail into curr_sents
-        head_sents = sorted([m["sent_id"] for m in entities[pred_rel["h_idx"]]]) #找出实体存在的句子
+        head_sents = sorted([m["sent_id"] for m in entities[pred_rel["h_idx"]]]) 
         tail_sents = sorted([m["sent_id"] for m in entities[pred_rel["t_idx"]]]) #same
 
-        if len(set(head_sents) & set(curr_sents)) == 0: #判断头实体所在句子是否和预测的有重叠
-            curr_sents.append(head_sents[0]) #没有的话 添加头实体所在句子
-        if len(set(tail_sents) & set(curr_sents)) == 0:  #和上面一昂
+        if len(set(head_sents) & set(curr_sents)) == 0: 
+            curr_sents.append(head_sents[0]) 
+        if len(set(tail_sents) & set(curr_sents)) == 0:  
             curr_sents.append(tail_sents[0])
 
-        curr_sents = sorted(set(curr_sents)) #排序
+        curr_sents = sorted(set(curr_sents)) 
         if curr_sents in sent_grps: # skip if such sentence group has already been created
             continue
         sent_grps.append(curr_sents)
 
         # new sentence masks and input ids
-        old_sent_pos = [raw_feature["sent_pos"][i] for i in curr_sents] #构建新的句子pos
-        new_input_ids_each = [raw_feature["input_ids"][s[0] + offset:s[1] + offset] for s in old_sent_pos] #构建新的input_id
+        old_sent_pos = [raw_feature["sent_pos"][i] for i in curr_sents] 
+        new_input_ids_each = [raw_feature["input_ids"][s[0] + offset:s[1] + offset] for s in old_sent_pos] 
         new_input_ids = sum(new_input_ids_each, [])
         new_input_ids = tokenizer.build_inputs_with_special_tokens(new_input_ids)
  
         new_sent_pos = []
 
         prev_len = 0
-        #构建新的句子位置new_sent_pos
-        for sent in old_sent_pos: #遍历每一个句子位置
+        for sent in old_sent_pos: 
             curr_sent_pos =  (prev_len, prev_len + sent[1] - sent[0])
             new_sent_pos.append(curr_sent_pos)
             prev_len += sent[1] - sent[0]
@@ -150,11 +146,9 @@ def get_pseudo_features(raw_feature: dict, pred_rels: list, entities: list, sent
 def create_hts_graph(hts,entities):
     N_nodes = len(hts)
     nodes_adj = np.zeros((N_nodes, N_nodes), dtype=np.int32)
-    # 添加自身的边
     edges_cnt = 1
     # for i in range(N_nodes):
     #     nodes_adj[i, i] = edges_cnt
-    # #添加实体对之间推理的边 头尾实体相同就会连接一个边
     # edges_cnt = 2
     for i in range(len(hts)):
         for j in range(i+1,len(hts)):
