@@ -18,7 +18,7 @@ Packages listed below are required.
 Our experiments include the [DocRED](https://github.com/thunlp/DocRED) and [Re-DocRED](https://github.com/tonytan48/Re-DocRED) datasets. The expected file structure is as follows:
 
 ```
-AA
+GREP
  |-- dataset
  |    |-- docred
  |    |    |-- train_annotated.json
